@@ -149,6 +149,10 @@ const handleBotResponse = (botId: string, message: Message) => {
 };
 
 const sendBotMessage = (botId: string, recipient: string, text: string) => {
+    if (botId === "bot-spam" && recipient !== "bot-spam") {
+        return;
+    }
+
     const botMessage: Message = {
         sender: botId,
         recipient,
@@ -182,9 +186,11 @@ setInterval(() => {
                 "Stay safe!",
             ][Math.floor(Math.random() * 5)];
 
-            sendBotMessage("bot-spam", user.id, randomMessage);
+            sendBotMessage("bot-spam", "bot-spam", randomMessage);
 
-            const randomDelay = Math.floor(Math.random() * (120000 - 10000) + 10000);
+            const randomDelay = Math.floor(
+                Math.random() * (120000 - 10000) + 10000,
+            );
             usersWithNextMessageTime[user.id] = now + randomDelay;
         }
     });
