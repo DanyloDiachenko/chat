@@ -1,8 +1,8 @@
 const App = () => {
     return (
-        <div className="h-screen flex flex-col items-center mt-6">
+        <div className="flex flex-col items-center mt-6">
             <h1 className="text-4xl font-medium container">Chat bots 2.0</h1>
-            <div className="w-full bg-[#586670] min-h-screen mt-3 py-6">
+            <div className="w-full bg-[#586670] min-h-[93vh] mt-3 py-6">
                 <div className="flex container">
                     <div className="w-4/5 border-r flex flex-col">
                         <div className="flex items-center max-h-40">
@@ -28,7 +28,7 @@ const App = () => {
                             </div>
                         </div>
                         <div className="bg-[#d6dfe7] px-2 p-6">
-                            <div className="flex-1 overflow-y-auto pl-4 pr-6">
+                            <div className="flex-1 overflow-y-auto pl-4 pr-6 min-h-[55vh]">
                                 <div className="max-w-4xl">
                                     <div className="rounded-t-md flex items-center justify-between py-2 px-4 bg-[#bdcbd9]">
                                         <span className="text-gray-700">
