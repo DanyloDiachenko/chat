@@ -1,13 +1,23 @@
 import { ContactItem as IContactItem } from "../../../interfaces/contact-item.interface";
 
-interface ContactItemProps extends IContactItem {}
+interface ContactItemProps extends IContactItem {
+    onContactItemClick: (contactItem: IContactItem) => void;
+    activeContactItem: IContactItem | null;
+}
 
 export const ContactItem = ({
     name,
     avatar,
     description,
+    onContactItemClick,
+    activeContactItem,
 }: ContactItemProps) => (
-    <div className="grid grid-cols-[50px_1fr] items-center mb-3 gap-3 px-4 py-1 cursor-pointer hover:bg-gray-100">
+    <div
+        className={`grid grid-cols-[50px_1fr] items-center mb-3 gap-3 px-4 py-1 cursor-pointer hover:bg-gray-100 ${
+            activeContactItem?.name === name ? "bg-gray-100" : ""
+        }`}
+        onClick={() => onContactItemClick({ name, avatar, description })}
+    >
         <div className="relative">
             <img
                 src={avatar}

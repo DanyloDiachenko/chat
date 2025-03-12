@@ -7,18 +7,18 @@ import { Sidebar } from "./components/Sidebar";
 import { ContactItem } from "./interfaces/contact-item.interface";
 
 const ChatApp = () => {
+    const [activeContactItem, setActiveContactItem] =
+        useState<ContactItem | null>(null);
     const [messages, setMessages] = useState<Message[]>([
         {
             sender: "Reverse bot",
             text: "Hello world!",
             time: "4:20 PM",
-            isUser: false,
         },
         {
             sender: "Username",
             text: "Hello robot!",
             time: "4:22 PM",
-            isUser: true,
         },
     ]);
 
@@ -64,10 +64,12 @@ const ChatApp = () => {
     ];
 
     const handleSendMessage = (text: string) => {
-        setMessages([
-            ...messages,
-            { sender: "Username", text, time: "Now", isUser: true },
-        ]);
+        setMessages([...messages, { sender: "Username", text, time: "Now" }]);
+    };
+
+    const onContactItemClick = (contactItem: ContactItem) => {
+        setActiveContactItem(contactItem);
+        // get chat history
     };
 
     return (
@@ -77,21 +79,34 @@ const ChatApp = () => {
                 <div className="flex container">
                     <div className="w-4/5 border-r flex flex-col">
                         <ConversationHeader
-                            name="Reverse bot"
-                            avatar="/reverse-bot.png"
-                            description="Reverses your messages!"
+                            activeContactItem={activeContactItem}
                         />
-                        <div className="bg-[#d6dfe7] px-2 p-6">
-                            <MessageList messages={messages} />
-                            <div className="text-center text-[#84aec6] mt-6">
-                                Reverse bot is typing...
-                            </div>
-                            <ChatInput onSend={handleSendMessage} />
+                        <div
+                            className={`bg-[#d6dfe7] px-2 p-6 ${
+                                !activeContactItem ? "h-full flex flex-1" : ""
+                            }`}
+                        >
+                            {activeContactItem ? (
+                                <>
+                                    <MessageList messages={messages} />
+                                    <div className="text-center text-[#84aec6] mt-6">
+                                        {activeContactItem?.name} bot is
+                                        typing...
+                                    </div>
+                                    <ChatInput onSend={handleSendMessage} />
+                                </>
+                            ) : (
+                                <div className="h-full mx-auto text-gray-700 text-sm">
+                                    Select contact to start chatting with...
+                                </div>
+                            )}
                         </div>
                     </div>
                     <Sidebar
                         bots={bots}
                         users={users}
+                        onContactItemClick={onContactItemClick}
+                        activeContactItem={activeContactItem}
                     />
                 </div>
             </div>

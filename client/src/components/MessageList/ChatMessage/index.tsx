@@ -2,7 +2,9 @@ import { Message } from "../../../interfaces/message.interface";
 
 interface MessageProps extends Message {}
 
-export const ChatMessage = ({ sender, text, time, isUser }: MessageProps) => {
+export const ChatMessage = ({ sender, text, time }: MessageProps) => {
+    const isUser = sender === "Username";
+
     return (
         <div className={`max-w-4xl mt-5 ${isUser ? "ml-auto" : ""}`}>
             <div

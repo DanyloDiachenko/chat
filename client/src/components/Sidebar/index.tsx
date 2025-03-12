@@ -5,9 +5,18 @@ import { ContactItem as ContactItemComponent } from "./ContactItem";
 interface SidebarProps {
     bots: ContactItem[];
     users: ContactItem[];
+    onContactItemClick: (conactItem: ContactItem) => void;
+    activeContactItem: ContactItem | null;
 }
 
-export const Sidebar = ({ bots, users }: SidebarProps) => {
+// ADD last seen time
+
+export const Sidebar = ({
+    bots,
+    users,
+    onContactItemClick,
+    activeContactItem,
+}: SidebarProps) => {
     const [activeTab, setActiveTab] = useState("bots");
 
     return (
@@ -36,7 +45,12 @@ export const Sidebar = ({ bots, users }: SidebarProps) => {
             </div>
             <div className="flex-1 overflow-auto">
                 {(activeTab === "bots" ? bots : users).map((contact, index) => (
-                    <ContactItemComponent key={index} {...contact} />
+                    <ContactItemComponent
+                        key={index}
+                        {...contact}
+                        onContactItemClick={onContactItemClick}
+                        activeContactItem={activeContactItem}
+                    />
                 ))}
             </div>
             <div className="px-4 mt-auto">
