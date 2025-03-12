@@ -27,8 +27,8 @@ const App = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="bg-[#d6dfe7] p-6">
-                            <div className="flex-1 overflow-y-auto">
+                        <div className="bg-[#d6dfe7] px-2 p-6">
+                            <div className="flex-1 overflow-y-auto pl-4 pr-6">
                                 <div className="max-w-4xl">
                                     <div className="rounded-t-md flex items-center justify-between py-2 px-4 bg-[#bdcbd9]">
                                         <span className="text-gray-700">
@@ -64,7 +64,7 @@ const App = () => {
                             <div className="text-center text-[#84aec6] mt-6">
                                 Reverse bot is typing...
                             </div>
-                            <form className="mt-4 flex w-full gap-3">
+                            <form className="mt-4 flex w-full gap-3 px-4">
                                 <input
                                     type="text"
                                     className="max-w-[75%] w-full rounded-md px-3 focus:outline-blue-300 outline-2 text-gray-700"
