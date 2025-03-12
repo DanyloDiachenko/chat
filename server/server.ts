@@ -17,6 +17,7 @@ interface User {
     avatar: string;
     online: boolean;
     isBot: boolean;
+    description: string;
 }
 
 interface Message {
@@ -35,6 +36,8 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=1",
         online: true,
         isBot: true,
+        description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
     },
     {
         id: "bot-reverse",
@@ -42,6 +45,8 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=2",
         online: true,
         isBot: true,
+        description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
     },
     {
         id: "bot-spam",
@@ -49,6 +54,8 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=3",
         online: true,
         isBot: true,
+        description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
     },
     {
         id: "bot-ignore",
@@ -56,6 +63,8 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=4",
         online: true,
         isBot: true,
+        description:
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
     },
 ];
 
@@ -75,11 +84,13 @@ io.on("connection", (socket: Socket) => {
             avatar: userData.avatar,
             online: true,
             isBot: false,
+            description: userData.description,
         };
         users.push(user);
     }
 
-    io.emit("updateUsers", [...users, ...bots]);
+    const usersWithoutCurrent = users.filter((u) => u.id !== user.id);
+    io.emit("updateUsers", [...usersWithoutCurrent, ...bots]);
 
     socket.on("requestMessageHistory", (recipientId: string) => {
         const messageHistory = messages.filter(
@@ -115,7 +126,9 @@ io.on("connection", (socket: Socket) => {
         if (index !== -1) {
             users[index].online = false;
         }
-        io.emit("updateUsers", [...users, ...bots]);
+
+        const usersWithoutCurrent = users.filter((u) => u.id !== user.id);
+        io.emit("updateUsers", [...usersWithoutCurrent, ...bots]);
     });
 });
 
