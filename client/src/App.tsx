@@ -21,7 +21,6 @@ const ChatApp = () => {
             isUser: true,
         },
     ]);
-    const [activeTab, setActiveTab] = useState("bots");
 
     const bots: ContactItem[] = [
         {
@@ -93,8 +92,6 @@ const ChatApp = () => {
                     <Sidebar
                         bots={bots}
                         users={users}
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
                     />
                 </div>
             </div>
