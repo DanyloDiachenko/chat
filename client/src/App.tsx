@@ -9,8 +9,9 @@ import { User } from "./interfaces/user.interface";
 
 const ChatApp = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [activeContactItem, setActiveContactItem] =
-        useState<User | null>(null);
+    const [activeContactItem, setActiveContactItem] = useState<User | null>(
+        null,
+    );
     const [messages, setMessages] = useState<Message[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [users, setUsers] = useState<User[]>([]);
@@ -21,13 +22,15 @@ const ChatApp = () => {
         if (!storedUser) {
             const id = Date.now().toString();
             const randomUsername = Math.random().toString(36).substring(2, 15);
-            const randomDescription = Math.random().toString(36).substring(2, 15);
+            const randomDescription = Math.random()
+                .toString(36)
+                .substring(2, 15);
 
             const newUser = {
                 id,
                 name: randomUsername,
                 description: randomDescription,
-                avatar: `https://i.pravatar.cc/${Math.floor(
+                avatar: `https://i.pravatar.cc/150?img=${Math.floor(
                     Math.random() * 100,
                 )}`,
                 online: true,
