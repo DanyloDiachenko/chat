@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { ContactItem } from "../../interfaces/contact-item.interface";
 import { ContactItem as ContactItemComponent } from "./ContactItem";
+import { User } from "../../interfaces/user.interface";
 
 interface SidebarProps {
-    bots: ContactItem[];
-    users: ContactItem[];
-    onContactItemClick: (conactItem: ContactItem) => void;
-    activeContactItem: ContactItem | null;
+    bots: User[];
+    users: User[];
+    onContactItemClick: (conactItem: User) => void;
+    activeContactItem: User | null;
 }
 
 // ADD last seen time
@@ -47,7 +47,7 @@ export const Sidebar = ({
                 {(activeTab === "bots" ? bots : users).map((contact, index) => (
                     <ContactItemComponent
                         key={index}
-                        {...contact}
+                        user={contact}
                         onContactItemClick={onContactItemClick}
                         activeContactItem={activeContactItem}
                     />

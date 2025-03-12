@@ -1,76 +1,103 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { io, Socket } from "socket.io-client";
 import { Message } from "./interfaces/message.interface";
 import { ConversationHeader } from "./components/ConversationHeader";
 import { MessageList } from "./components/MessageList";
 import { ChatInput } from "./components/ChatInput";
 import { Sidebar } from "./components/Sidebar";
-import { ContactItem } from "./interfaces/contact-item.interface";
+import { User } from "./interfaces/user.interface";
 
 const ChatApp = () => {
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [activeContactItem, setActiveContactItem] =
-        useState<ContactItem | null>(null);
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            sender: "Reverse bot",
-            text: "Hello world!",
-            time: "4:20 PM",
-        },
-        {
-            sender: "Username",
-            text: "Hello robot!",
-            time: "4:22 PM",
-        },
-    ]);
+        useState<User | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [user, setUser] = useState<User | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
 
-    const bots: ContactItem[] = [
-        {
-            name: "Echo bot",
-            avatar: "/echo-bot.png",
-            description: "Echoing...",
-        },
-        {
-            name: "Reverse bot",
-            avatar: "/reverse-bot.png",
-            description: "Reversing text...",
-        },
-        {
-            name: "Spam bot",
-            avatar: "/spam-bot.png",
-            description: "Sending spam...",
-        },
-        {
-            name: "Ignore bot",
-            avatar: "/ignore-bot.png",
-            description: "Ignoring you...",
-        },
-    ];
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
 
-    const users: ContactItem[] = [
-        {
-            name: "Alice",
-            avatar: "/echo-bot.png",
-            description: "Hey, how are you?",
-        },
-        {
-            name: "Bob",
-            avatar: "/echo-bot.png",
-            description: "Did you see that?",
-        },
-        {
-            name: "Charlie",
-            avatar: "/echo-bot.png",
-            description: "Let's meet up!",
-        },
-    ];
+        if (!storedUser) {
+            const id = Date.now().toString();
+            const randomUsername = Math.random().toString(36).substring(2, 15);
+            const randomDescription = Math.random().toString(36).substring(2, 15);
+
+            const newUser = {
+                id,
+                name: randomUsername,
+                description: randomDescription,
+                avatar: `https://i.pravatar.cc/${Math.floor(
+                    Math.random() * 100,
+                )}`,
+                online: true,
+                isBot: false,
+            };
+            localStorage.setItem("user", JSON.stringify(newUser));
+
+            setUser(newUser);
+        } else {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const newSocket = io("http://localhost:3005", {
+            query: {
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+            },
+        });
+        setSocket(newSocket);
+
+        newSocket.on("updateUsers", (users: User[]) => {
+            console.log("Updated users list:", users);
+            setUsers(users);
+        });
+
+        newSocket.on("receiveMessage", (message: Message) => {
+            console.log("New message received:", message);
+            setMessages((prevMessages) => [...prevMessages, message]);
+        });
+
+        return () => {
+            newSocket.disconnect();
+        };
+    }, [user]);
 
     const handleSendMessage = (text: string) => {
-        setMessages([...messages, { sender: "Username", text, time: "Now" }]);
+        if (!socket || !activeContactItem) return;
+
+        const newMessage: Message = {
+            sender: user?.id || "",
+            //@ts-ignore
+            recipient: activeContactItem.name,
+            text,
+            time: new Date().toLocaleTimeString(),
+        };
+
+        socket.emit("sendMessage", { recipient: activeContactItem.name, text });
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
     };
 
-    const onContactItemClick = (contactItem: ContactItem) => {
+    const onContactItemClick = (contactItem: User) => {
         setActiveContactItem(contactItem);
-        // get chat history
+        if (socket) {
+            socket.emit("requestMessageHistory", contactItem.name);
+        }
     };
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("messageHistory", (history: Message[]) => {
+            console.log("Message history received:", history);
+            setMessages(history);
+        });
+    }, [socket]);
 
     return (
         <div className="flex flex-col items-center mt-6">
@@ -103,8 +130,8 @@ const ChatApp = () => {
                         </div>
                     </div>
                     <Sidebar
-                        bots={bots}
-                        users={users}
+                        bots={users.filter((user) => user.isBot)}
+                        users={users.filter((user) => !user.isBot)}
                         onContactItemClick={onContactItemClick}
                         activeContactItem={activeContactItem}
                     />

@@ -1,10 +1,12 @@
-import { ContactItem } from "../../interfaces/contact-item.interface";
+import { User } from "../../interfaces/user.interface";
 
 interface ConversationHeaderProps {
-    activeContactItem: ContactItem | null;
+    activeContactItem: User | null;
 }
 
-export const ConversationHeader = ({ activeContactItem }: ConversationHeaderProps) => (
+export const ConversationHeader = ({
+    activeContactItem,
+}: ConversationHeaderProps) => (
     <div className="flex items-center h-40">
         {activeContactItem ? (
             <>
