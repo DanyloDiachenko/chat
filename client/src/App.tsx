@@ -37,7 +37,6 @@ const ChatApp = () => {
                 isBot: false,
             };
             localStorage.setItem("user", JSON.stringify(newUser));
-
             setUser(newUser);
         } else {
             setUser(JSON.parse(storedUser));
@@ -52,6 +51,7 @@ const ChatApp = () => {
                 id: user.id,
                 name: user.name,
                 avatar: user.avatar,
+                description: user.description,
             },
         });
         setSocket(newSocket);
@@ -72,24 +72,21 @@ const ChatApp = () => {
     }, [user]);
 
     const handleSendMessage = (text: string) => {
-        if (!socket || !activeContactItem) return;
+        if (!socket || !activeContactItem || !user) return;
 
-        const newMessage: Message = {
-            sender: user?.id || "",
-            //@ts-ignore
-            recipient: activeContactItem.name,
+        const newMessage = {
+            sender: user.id,
+            recipient: activeContactItem.id,
             text,
-            time: new Date().toLocaleTimeString(),
         };
-
-        socket.emit("sendMessage", { recipient: activeContactItem.name, text });
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        console.log("Sending message:", newMessage);
+        socket.emit("sendMessage", newMessage);
     };
 
     const onContactItemClick = (contactItem: User) => {
         setActiveContactItem(contactItem);
         if (socket) {
-            socket.emit("requestMessageHistory", contactItem.name);
+            socket.emit("requestMessageHistory", contactItem.id);
         }
     };
 
@@ -100,12 +97,16 @@ const ChatApp = () => {
             console.log("Message history received:", history);
             setMessages(history);
         });
+
+        return () => {
+            socket.off("messageHistory");
+        };
     }, [socket]);
 
     return (
         <div className="flex flex-col items-center mt-6">
-            <h1 className="text-4xl font-medium container">Chat bots 2.0</h1>
-            <div className="w-full bg-[#586670] min-h-[93vh] mt-3 py-6">
+            <h1 className="text-4xl font-medium container">Chat App</h1>
+            <div className="w-full bg-gray-200 min-h-[93vh] mt-3 py-6">
                 <div className="flex container">
                     <div className="w-4/5 border-r flex flex-col">
                         <ConversationHeader
@@ -118,16 +119,15 @@ const ChatApp = () => {
                         >
                             {activeContactItem ? (
                                 <>
-                                    <MessageList messages={messages} />
-                                    <div className="text-center text-[#84aec6] mt-6">
-                                        {activeContactItem?.name} bot is
-                                        typing...
-                                    </div>
+                                    <MessageList
+                                        messages={messages}
+                                        me={user as User}
+                                    />
                                     <ChatInput onSend={handleSendMessage} />
                                 </>
                             ) : (
                                 <div className="h-full mx-auto text-gray-700 text-sm">
-                                    Select contact to start chatting with...
+                                    Select contact to start chatting...
                                 </div>
                             )}
                         </div>

@@ -23,14 +23,21 @@ export const ContactItem = ({
                 alt="avatar"
                 className="h-[50px] w-[50px] rounded-sm"
             />
-            <div className="w-4 h-4 absolute bg-green-500 rounded-full -right-1 -bottom-1"></div>
+            {/*  {user.online && (
+                
+            )} */}
+            <div
+                className={`w-4 h-4 absolute ${
+                    user.online ? "bg-green-500" : "bg-gray-400"
+                } rounded-full -right-1 -bottom-1`}
+            ></div>
         </div>
         <div>
             <div className="font-semibold text-gray-700 leading-5">
                 {user.name}
             </div>
             <p className="text-sm leading-4 text-gray-400">
-                {user.description}
+                {user.description.slice(0, 50)}...
             </p>
         </div>
     </div>

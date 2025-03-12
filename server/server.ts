@@ -36,8 +36,7 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=1",
         online: true,
         isBot: true,
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
+        description: "I'm Echo Bot. I repeat everything you say!",
     },
     {
         id: "bot-reverse",
@@ -45,8 +44,7 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=2",
         online: true,
         isBot: true,
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
+        description: "I reverse your messages. Try me!",
     },
     {
         id: "bot-spam",
@@ -54,8 +52,7 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=3",
         online: true,
         isBot: true,
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
+        description: "I randomly send messages to myself.",
     },
     {
         id: "bot-ignore",
@@ -63,8 +60,7 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=4",
         online: true,
         isBot: true,
-        description:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
+        description: "I don't respond to messages.",
     },
 ];
 
@@ -88,6 +84,8 @@ io.on("connection", (socket: Socket) => {
         };
         users.push(user);
     }
+
+    socket.join(user.id);
 
     const usersWithoutCurrent = users.filter((u) => u.id !== user.id);
     io.emit("updateUsers", [...usersWithoutCurrent, ...bots]);
@@ -126,21 +124,22 @@ io.on("connection", (socket: Socket) => {
         if (index !== -1) {
             users[index].online = false;
         }
-
-        const usersWithoutCurrent = users.filter((u) => u.id !== user.id);
-        io.emit("updateUsers", [...usersWithoutCurrent, ...bots]);
+        io.emit("updateUsers", [
+            ...users.filter((u) => u.id !== user.id),
+            ...bots,
+        ]);
     });
 });
 
-const handleBotResponse = (botName: string, message: Message) => {
-    switch (botName) {
-        case "Echo Bot":
-            sendBotMessage(botName, message.sender, message.text);
+const handleBotResponse = (botId: string, message: Message) => {
+    switch (botId) {
+        case "bot-echo":
+            sendBotMessage(botId, message.sender, message.text);
             break;
-        case "Reverse Bot":
+        case "bot-reverse":
             setTimeout(() => {
                 sendBotMessage(
-                    botName,
+                    botId,
                     message.sender,
                     message.text.split("").reverse().join(""),
                 );
@@ -149,44 +148,46 @@ const handleBotResponse = (botName: string, message: Message) => {
     }
 };
 
-const sendBotMessage = (botName: string, recipient: string, text: string) => {
+const sendBotMessage = (botId: string, recipient: string, text: string) => {
     const botMessage: Message = {
-        sender: botName,
+        sender: botId,
         recipient,
         text,
         time: new Date().toLocaleTimeString(),
     };
 
     messages.push(botMessage);
-    io.to(users.find((u) => u.id === recipient)?.id || "").emit(
-        "receiveMessage",
-        botMessage,
-    );
+    io.to(recipient).emit("receiveMessage", botMessage);
 };
 
-const randomSpamMessages = [
-    "Hello!",
-    "How are you?",
-    "I'm a bot!",
-    "Just checking in.",
-    "Stay safe!",
-];
+const usersWithNextMessageTime: { [key: string]: number } = {};
 
 setInterval(() => {
-    const spamBot = bots.find((b) => b.name === "Spam Bot");
+    const spamBot = bots.find((b) => b.id === "bot-spam");
     if (!spamBot) return;
 
     const onlineUsers = users.filter((u) => u.online);
     if (onlineUsers.length === 0) return;
 
-    const randomUser =
-        onlineUsers[Math.floor(Math.random() * onlineUsers.length)];
-    const randomMessage =
-        randomSpamMessages[
-            Math.floor(Math.random() * randomSpamMessages.length)
-        ];
+    onlineUsers.forEach((user) => {
+        const now = Date.now();
+        const nextMessageTime = usersWithNextMessageTime[user.id] || now;
 
-    sendBotMessage("Spam Bot", randomUser.id, randomMessage);
-}, Math.floor(Math.random() * (120000 - 10000) + 10000));
+        if (now >= nextMessageTime) {
+            const randomMessage = [
+                "Hello!",
+                "How are you?",
+                "I'm a bot!",
+                "Just checking in.",
+                "Stay safe!",
+            ][Math.floor(Math.random() * 5)];
+
+            sendBotMessage("bot-spam", user.id, randomMessage);
+
+            const randomDelay = Math.floor(Math.random() * (120000 - 10000) + 10000);
+            usersWithNextMessageTime[user.id] = now + randomDelay;
+        }
+    });
+}, 1000);
 
 server.listen(3005, () => console.log("Server running on port 3005"));
