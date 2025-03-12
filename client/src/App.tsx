@@ -27,7 +27,7 @@ const App = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="flex-1 bg-[#d6dfe7] p-4 rounded-lg overflow-y-auto">
+                        <div className="flex-1 bg-[#d6dfe7] p-6 rounded-lg overflow-y-auto">
                             <div className="max-w-4xl">
                                 <div className="rounded-t-md flex items-center justify-between py-2 px-4 bg-[#bdcbd9]">
                                     <span className="text-gray-700">
@@ -42,13 +42,22 @@ const App = () => {
                                     <div className="absolute -left-2 top-1/2 -translate-y-1/2 bg-white w-4 h-4 rotate-45"></div>
                                 </div>
                             </div>
-                            <div className="text-right mt-2">
-                                <p className="bg-blue-500 text-white p-2 rounded-lg inline-block">
-                                    Hello robot
-                                </p>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    Seen 4:27PM
-                                </p>
+                            <div className="max-w-4xl mt-5 ml-auto">
+                                <div className="rounded-t-md flex items-center justify-between py-2 px-4 bg-[#f0cbb3]">
+                                    <span className="text-gray-700">
+                                        Username
+                                    </span>
+                                    <span className="text-gray-400">
+                                        4:22 PM
+                                    </span>
+                                </div>
+                                <div className="px-4 py-2 bg-white shadow-lg text-gray-700 rounded-b-md relative">
+                                    <p>Hello robot!</p>
+                                    <div className="absolute -right-2 top-1/2 -translate-y-1/2 bg-white w-4 h-4 rotate-45"></div>
+                                    <div className="absolute -bottom-6 text-sm text-gray-400 z-10">
+                                        Seen 4:27 PM
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="mt-4">
