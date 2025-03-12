@@ -74,19 +74,8 @@ const App = () => {
                                     Send message
                                 </button>
                             </form>
-                            {/* <div className="mt-4">
-                                <input
-                                    type="text"
-                                    placeholder="Start chatting!"
-                                    className="w-full p-2 border rounded-lg"
-                                />
-                                <button className="mt-2 w-full bg-blue-500 text-white py-2 rounded-lg">
-                                    Send message
-                                </button>
-                            </div> */}
                         </div>
                     </div>
-                    {/* Right Panel - Bot List */}
                     <div className="w-1/4 p-4">
                         <div className="flex justify-between mb-2">
                             <button className="font-bold">Online</button>
