@@ -4,10 +4,10 @@ const App = () => {
             <h1 className="text-4xl font-medium container">Chat bots 2.0</h1>
             <div className="w-full bg-[#586670] min-h-screen mt-3 py-6">
                 <div className="flex container">
-                    <div className="w-3/4 border-r flex flex-col">
+                    <div className="w-4/5 border-r flex flex-col">
                         <div className="flex items-center max-h-40">
                             <img
-                                src="/patrick.png"
+                                src="/reverse-bot.png"
                                 alt="bot avatar"
                                 className="h-full aspect-square"
                             />
@@ -76,10 +76,14 @@ const App = () => {
                             </form>
                         </div>
                     </div>
-                    <div className="w-1/4 p-4">
-                        <div className="flex justify-between mb-2">
-                            <button className="font-bold">Online</button>
-                            <button className="text-gray-500">All</button>
+                    <div className="w-1/5 pb-4 bg-white">
+                        <div className="grid grid-cols-2 mb-2">
+                            <button className="text-gray-600 text-center pt-4 pb-1">
+                                Online
+                            </button>
+                            <button className="text-gray-400 text-center border-l border-b border-gray-300 bg-gray-100 pt-4 pb-1">
+                                All
+                            </button>
                         </div>
                         {[
                             "Echo bot",
@@ -89,22 +93,34 @@ const App = () => {
                         ].map((bot, index) => (
                             <div
                                 key={index}
-                                className="flex items-center mb-3 p-2 bg-gray-100 rounded-lg"
+                                className="grid grid-cols-[50px_1fr] items-center mb-3 gap-3 px-4 py-1 cursor-pointer hover:bg-gray-100"
                             >
-                                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <div className="relative">
+                                    <img
+                                        src="/reverse-bot.png"
+                                        alt="bot avatar"
+                                        className="aspect-square rounded-sm"
+                                    />
+                                    <div className="w-4 h-4 absolute bg-green-500 rounded-full -right-1 -bottom-1"></div>
+                                </div>
                                 <div>
-                                    <p className="font-semibold">{bot}</p>
-                                    <p className="text-xs text-gray-500">
-                                        Fusce dapibus, tellus ac cursus...
+                                    <div className="font-semibold text-gray-700 leading-5">
+                                        {bot}
+                                    </div>
+                                    <p className="text-sm leading-4 text-gray-400">
+                                        Fusce dapibus, tellus ac cursus Fusce
+                                        dapibus, tellus ac cursus...
                                     </p>
                                 </div>
                             </div>
                         ))}
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="w-full p-2 border rounded-lg mt-4"
-                        />
+                        <div className="px-4 mt-auto">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="border block w-full py-2 rounded-md px-3 focus:outline-blue-300 outline-2 text-gray-700"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
