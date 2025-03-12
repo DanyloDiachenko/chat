@@ -31,7 +31,7 @@ const ChatApp = () => {
                 name: randomUsername,
                 description: randomDescription,
                 avatar: `https://i.pravatar.cc/150?img=${Math.floor(
-                    Math.random() * 100,
+                    Math.random() * 70,
                 )}`,
                 online: true,
                 isBot: false,

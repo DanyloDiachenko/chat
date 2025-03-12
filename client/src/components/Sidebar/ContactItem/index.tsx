@@ -21,7 +21,7 @@ export const ContactItem = ({
             <img
                 src={user.avatar}
                 alt="avatar"
-                className="aspect-square rounded-sm"
+                className="h-[50px] w-[50px] rounded-sm"
             />
             <div className="w-4 h-4 absolute bg-green-500 rounded-full -right-1 -bottom-1"></div>
         </div>
