@@ -138,10 +138,7 @@ io.on("connection", (socket: Socket) => {
         if (index !== -1) {
             users[index].online = false;
         }
-        io.emit("updateUsers", [
-            ...users.filter((u) => u.id !== user.id),
-            ...bots,
-        ]);
+        io.emit("updateUsers", [...users, ...bots]);
     });
 });
 
