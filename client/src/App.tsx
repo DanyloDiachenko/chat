@@ -87,6 +87,7 @@ const ChatApp = () => {
         setActiveContactItem(contactItem);
         if (socket) {
             socket.emit("requestMessageHistory", contactItem.id);
+            socket.emit("setActiveChat", contactItem.id);
         }
     };
 
@@ -106,7 +107,7 @@ const ChatApp = () => {
     return (
         <div className="flex flex-col items-center mt-6">
             <h1 className="text-4xl font-medium container">Chat App</h1>
-            <div className="w-full bg-gray-200 min-h-[93vh] mt-3 py-6">
+            <div className="w-full bg-[#586670] min-h-[93vh] mt-3 py-6">
                 <div className="flex container">
                     <div className="w-4/5 border-r flex flex-col">
                         <ConversationHeader

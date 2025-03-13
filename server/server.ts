@@ -52,7 +52,7 @@ const bots: User[] = [
         avatar: "https://i.pravatar.cc/150?img=3",
         online: true,
         isBot: true,
-        description: "I randomly send messages to myself.",
+        description: "I send spam messages to users randomly.",
     },
     {
         id: "bot-ignore",
@@ -63,6 +63,9 @@ const bots: User[] = [
         description: "I don't respond to messages.",
     },
 ];
+
+const activeChats: { [userId: string]: string } = {};
+const spamTimers: { [userId: string]: NodeJS.Timeout } = {};
 
 io.on("connection", (socket: Socket) => {
     const userData = socket.handshake.query as unknown as User;
@@ -86,9 +89,7 @@ io.on("connection", (socket: Socket) => {
     }
 
     socket.join(user.id);
-
-    const usersWithoutCurrent = users.filter((u) => u.id !== user.id);
-    io.emit("updateUsers", [...usersWithoutCurrent, ...bots]);
+    io.emit("updateUsers", [...users.filter((u) => u.id !== user.id), ...bots]);
 
     socket.on("requestMessageHistory", (recipientId: string) => {
         const messageHistory = messages.filter(
@@ -119,7 +120,23 @@ io.on("connection", (socket: Socket) => {
         },
     );
 
+    socket.on("setActiveChat", (chatId: string) => {
+        activeChats[user.id] = chatId;
+
+        if (chatId === "bot-spam") {
+            if (!spamTimers[user.id]) {
+                scheduleSpamMessage(user.id);
+            }
+        } else {
+            clearTimeout(spamTimers[user.id]);
+            delete spamTimers[user.id];
+        }
+    });
+
     socket.on("disconnect", () => {
+        clearTimeout(spamTimers[user.id]);
+        delete spamTimers[user.id];
+
         const index = users.findIndex((u) => u.id === user.id);
         if (index !== -1) {
             users[index].online = false;
@@ -130,6 +147,28 @@ io.on("connection", (socket: Socket) => {
         ]);
     });
 });
+
+const scheduleSpamMessage = (userId: string) => {
+    const minDelay = 10000;
+    const maxDelay = 120000;
+    const randomDelay =
+        Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+    spamTimers[userId] = setTimeout(() => {
+        if (activeChats[userId] === "bot-spam") {
+            const randomMessage = [
+                "Hello!",
+                "How are you?",
+                "I'm a bot!",
+                "Just checking in.",
+                "Stay safe!",
+            ][Math.floor(Math.random() * 5)];
+
+            sendBotMessage("bot-spam", userId, randomMessage);
+            scheduleSpamMessage(userId);
+        }
+    }, randomDelay);
+};
 
 const handleBotResponse = (botId: string, message: Message) => {
     switch (botId) {
@@ -149,10 +188,6 @@ const handleBotResponse = (botId: string, message: Message) => {
 };
 
 const sendBotMessage = (botId: string, recipient: string, text: string) => {
-    if (botId === "bot-spam" && recipient !== "bot-spam") {
-        return;
-    }
-
     const botMessage: Message = {
         sender: botId,
         recipient,
@@ -163,37 +198,5 @@ const sendBotMessage = (botId: string, recipient: string, text: string) => {
     messages.push(botMessage);
     io.to(recipient).emit("receiveMessage", botMessage);
 };
-
-const usersWithNextMessageTime: { [key: string]: number } = {};
-
-setInterval(() => {
-    const spamBot = bots.find((b) => b.id === "bot-spam");
-    if (!spamBot) return;
-
-    const onlineUsers = users.filter((u) => u.online);
-    if (onlineUsers.length === 0) return;
-
-    onlineUsers.forEach((user) => {
-        const now = Date.now();
-        const nextMessageTime = usersWithNextMessageTime[user.id] || now;
-
-        if (now >= nextMessageTime) {
-            const randomMessage = [
-                "Hello!",
-                "How are you?",
-                "I'm a bot!",
-                "Just checking in.",
-                "Stay safe!",
-            ][Math.floor(Math.random() * 5)];
-
-            sendBotMessage("bot-spam", "bot-spam", randomMessage);
-
-            const randomDelay = Math.floor(
-                Math.random() * (120000 - 10000) + 10000,
-            );
-            usersWithNextMessageTime[user.id] = now + randomDelay;
-        }
-    });
-}, 1000);
 
 server.listen(3005, () => console.log("Server running on port 3005"));
