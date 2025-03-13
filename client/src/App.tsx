@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { Message } from "./interfaces/message.interface";
 import { ConversationHeader } from "./components/ConversationHeader";
@@ -17,6 +17,8 @@ const ChatApp = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [isTyping, setIsTyping] = useState<{ [key: string]: boolean }>({});
     const [message, setMessage] = useState("");
+
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -127,6 +129,12 @@ const ChatApp = () => {
         };
     }, [socket]);
 
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
+
     return (
         <div className="flex flex-col items-center mt-6">
             <h1 className="text-4xl font-medium container">Chat App</h1>
@@ -143,10 +151,13 @@ const ChatApp = () => {
                         >
                             {activeContactItem ? (
                                 <>
-                                    <MessageList
-                                        messages={messages}
-                                        me={user as User}
-                                    />
+                                    <div className="flex-1 overflow-y-auto pl-4 pr-6 h-[55vh]">
+                                        <MessageList
+                                            messages={messages}
+                                            me={user as User}
+                                        />
+                                        <div ref={messagesEndRef} />
+                                    </div>
                                     <ChatInput
                                         message={message}
                                         setMessage={setMessage}

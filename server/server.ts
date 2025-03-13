@@ -123,7 +123,7 @@ io.on("connection", (socket: Socket) => {
     socket.on("setActiveChat", (chatId: string) => {
         activeChats[user.id] = chatId;
 
-        if (chatId === "bot-spam") {
+        if (chatId === "bot-spam" && !spamTimers[user.id]) {
             io.to(user.id).emit("typing", { userId: "bot-spam", typing: true });
             scheduleSpamMessage(user.id);
         }
@@ -151,6 +151,10 @@ const scheduleSpamMessage = (userId: string) => {
     const randomDelay =
         Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
+    if (spamTimers[userId]) {
+        clearTimeout(spamTimers[userId]);
+    }
+
     spamTimers[userId] = setTimeout(() => {
         if (activeChats[userId] === "bot-spam") {
             const randomMessage = [
@@ -162,8 +166,6 @@ const scheduleSpamMessage = (userId: string) => {
             ][Math.floor(Math.random() * 5)];
 
             sendBotMessage("bot-spam", userId, randomMessage);
-
-            io.to(userId).emit("typing", { userId: "bot-spam", typing: true });
 
             scheduleSpamMessage(userId);
         }
@@ -205,6 +207,14 @@ const handleBotResponse = (botId: string, message: Message) => {
             break;
 
         case "bot-spam":
+            io.to(recipient).emit("typing", {
+                userId: botId,
+                typing: false,
+            });
+
+            scheduleSpamMessage(recipient);
+            break;
+        /* case "bot-spam":
             io.to(recipient).emit("typing", { userId: botId, typing: true });
 
             setTimeout(() => {
@@ -225,7 +235,7 @@ const handleBotResponse = (botId: string, message: Message) => {
 
                 scheduleSpamMessage(recipient);
             }, Math.floor(Math.random() * 2000) + 1000);
-            break;
+            break; */
     }
 };
 
