@@ -89,7 +89,7 @@ io.on("connection", (socket: Socket) => {
     }
 
     socket.join(user.id);
-    io.emit("updateUsers", [...users.filter((u) => u.id !== user.id), ...bots]);
+    io.emit("updateUsers", [...users, ...bots]);
 
     socket.on("requestMessageHistory", (recipientId: string) => {
         const messageHistory = messages.filter(

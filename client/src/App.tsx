@@ -26,9 +26,36 @@ const ChatApp = () => {
         if (!storedUser) {
             const id = Date.now().toString();
             const randomUsername = Math.random().toString(36).substring(2, 15);
-            const randomDescription = Math.random()
-                .toString(36)
-                .substring(2, 15);
+            const generateRandomDescription = () => {
+                const randomString =
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15) +
+                    Math.random().toString(36).substring(2, 15);
+
+                let result = "";
+                let count = 0;
+
+                for (let i = 0; i < randomString.length; i++) {
+                    result += randomString[i];
+                    count++;
+
+                    if (count >= 4 && (count % 5 === 0 || count % 4 === 0)) {
+                        result += " ";
+                        count = 0;
+                    }
+                }
+
+                return result;
+            };
+
+            const randomDescription = generateRandomDescription();
 
             const newUser = {
                 id,
@@ -176,8 +203,10 @@ const ChatApp = () => {
                         </div>
                     </div>
                     <Sidebar
-                        bots={users.filter((user) => user.isBot)}
-                        users={users.filter((user) => !user.isBot)}
+                        bots={users.filter((u) => u.isBot)}
+                        users={users.filter(
+                            (u) => !u.isBot && u.id !== user?.id,
+                        )}
                         onContactItemClick={onContactItemClick}
                         activeContactItem={activeContactItem}
                     />

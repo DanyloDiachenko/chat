@@ -26,7 +26,7 @@ export const ChatInput = ({
 
     return (
         <div className="mt-4 pt-6 relative">
-            <div className="text-blue-700 absolute -top-2 -left-1/2 -right-1/2 translate-x-1/2">
+            <div className="text-blue-700 absolute -top-2 w-full text-center">
                 {isTyping ? `${activeContactItem.name} is typing...` : ""}
             </div>
             <form className="flex w-full gap-3 px-4" onSubmit={handleSend}>
