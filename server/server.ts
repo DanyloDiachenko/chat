@@ -124,19 +124,16 @@ io.on("connection", (socket: Socket) => {
         activeChats[user.id] = chatId;
 
         if (chatId === "bot-spam") {
-            if (!spamTimers[user.id]) {
-                scheduleSpamMessage(user.id);
-            }
-        } else {
-            clearTimeout(spamTimers[user.id]);
-            delete spamTimers[user.id];
+            io.to(user.id).emit("typing", { userId: "bot-spam", typing: true });
+            scheduleSpamMessage(user.id);
         }
     });
 
-    socket.on("disconnect", () => {
-        clearTimeout(spamTimers[user.id]);
-        delete spamTimers[user.id];
+    socket.on("userTyping", (isTyping: boolean) => {
+        io.emit("typing", { userId: user.id, typing: isTyping });
+    });
 
+    socket.on("disconnect", () => {
         const index = users.findIndex((u) => u.id === user.id);
         if (index !== -1) {
             users[index].online = false;
@@ -165,24 +162,69 @@ const scheduleSpamMessage = (userId: string) => {
             ][Math.floor(Math.random() * 5)];
 
             sendBotMessage("bot-spam", userId, randomMessage);
+
+            io.to(userId).emit("typing", { userId: "bot-spam", typing: true });
+
             scheduleSpamMessage(userId);
         }
     }, randomDelay);
 };
 
 const handleBotResponse = (botId: string, message: Message) => {
+    const recipient = message.sender;
+
     switch (botId) {
         case "bot-echo":
-            sendBotMessage(botId, message.sender, message.text);
+            io.to(recipient).emit("typing", { userId: botId, typing: true });
+            setTimeout(() => {
+                sendBotMessage(botId, recipient, message.text);
+                io.to(recipient).emit("typing", {
+                    userId: botId,
+                    typing: false,
+                });
+            }, 1000);
             break;
+
         case "bot-reverse":
+            io.to(recipient).emit("typing", { userId: botId, typing: true });
             setTimeout(() => {
                 sendBotMessage(
                     botId,
-                    message.sender,
+                    recipient,
                     message.text.split("").reverse().join(""),
                 );
+                io.to(recipient).emit("typing", {
+                    userId: botId,
+                    typing: false,
+                });
             }, 3000);
+            break;
+
+        case "bot-ignore":
+            io.to(recipient).emit("typing", { userId: botId, typing: false });
+            break;
+
+        case "bot-spam":
+            io.to(recipient).emit("typing", { userId: botId, typing: true });
+
+            setTimeout(() => {
+                const randomMessage = [
+                    "Hello!",
+                    "How are you?",
+                    "I'm a bot!",
+                    "Just checking in.",
+                    "Stay safe!",
+                ][Math.floor(Math.random() * 5)];
+
+                sendBotMessage(botId, recipient, randomMessage);
+
+                io.to(recipient).emit("typing", {
+                    userId: botId,
+                    typing: true,
+                });
+
+                scheduleSpamMessage(recipient);
+            }, Math.floor(Math.random() * 2000) + 1000);
             break;
     }
 };

@@ -15,6 +15,8 @@ const ChatApp = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [user, setUser] = useState<User | null>(null);
     const [users, setUsers] = useState<User[]>([]);
+    const [isTyping, setIsTyping] = useState<{ [key: string]: boolean }>({});
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -66,6 +68,17 @@ const ChatApp = () => {
             setMessages((prevMessages) => [...prevMessages, message]);
         });
 
+        newSocket.on(
+            "typing",
+            ({ userId, typing }: { userId: string; typing: boolean }) => {
+                console.log(`${userId} is typing: ${typing}`);
+                setIsTyping((prevState) => ({
+                    ...prevState,
+                    [userId]: typing,
+                }));
+            },
+        );
+
         return () => {
             newSocket.disconnect();
         };
@@ -90,6 +103,16 @@ const ChatApp = () => {
             socket.emit("setActiveChat", contactItem.id);
         }
     };
+
+    const handleTyping = (isTyping: boolean) => {
+        if (socket) {
+            socket.emit("userTyping", isTyping);
+        }
+    };
+
+    useEffect(() => {
+        handleTyping(message.length > 0);
+    }, [message]);
 
     useEffect(() => {
         if (!socket) return;
@@ -124,7 +147,15 @@ const ChatApp = () => {
                                         messages={messages}
                                         me={user as User}
                                     />
-                                    <ChatInput onSend={handleSendMessage} />
+                                    <ChatInput
+                                        message={message}
+                                        setMessage={setMessage}
+                                        onSend={handleSendMessage}
+                                        isTyping={
+                                            isTyping[activeContactItem.id]
+                                        }
+                                        activeContactItem={activeContactItem}
+                                    />
                                 </>
                             ) : (
                                 <div className="h-full mx-auto text-gray-700 text-sm">
