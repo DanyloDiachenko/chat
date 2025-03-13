@@ -11,8 +11,6 @@ interface SidebarProps {
     onUsersSearch: (search: string) => void;
 }
 
-// ADD last seen time
-
 export const Sidebar = ({
     bots,
     users,

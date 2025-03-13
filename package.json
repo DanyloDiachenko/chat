@@ -1,0 +1,12 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "scripts": {
+    "postinstall": "concurrently \"yarn --cwd client\" \"yarn --cwd server\"",
+    "start": "concurrently \"yarn --cwd client start\" \"yarn --cwd server start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "packageManager": "yarn@1.22.22"
+}
