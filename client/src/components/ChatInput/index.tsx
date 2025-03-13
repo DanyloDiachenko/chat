@@ -16,7 +16,7 @@ export const ChatInput = ({
     message,
     setMessage,
 }: ChatInputProps) => {
-    const handleSend = (e: FormEvent) => {
+    const onSendHandler = (e: FormEvent) => {
         e.preventDefault();
 
         if (message.trim()) {
@@ -30,7 +30,7 @@ export const ChatInput = ({
             <div className="text-blue-700 absolute -top-2 w-full text-center">
                 {isTyping ? `${activeContactItem.name} is typing...` : ""}
             </div>
-            <form className="flex w-full gap-3 px-4" onSubmit={handleSend}>
+            <form className="flex w-full gap-3 px-4" onSubmit={onSendHandler}>
                 <input
                     type="text"
                     className="max-w-[75%] w-full py-3 rounded-md px-3 focus:outline-blue-300 outline-2 text-gray-700"
