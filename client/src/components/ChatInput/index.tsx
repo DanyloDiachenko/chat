@@ -39,7 +39,7 @@ export const ChatInput = ({
                 />
                 <button
                     type="submit"
-                    className="max-w-[25%] w-full bg-[#428bca] text-white py-3 rounded-md text-opacity-80"
+                    className="max-w-[25%] w-full bg-[#428bca] text-white py-3 rounded-md text-opacity-80 hover:bg-[#428bca]/80"
                 >
                     Send message
                 </button>

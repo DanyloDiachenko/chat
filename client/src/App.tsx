@@ -139,6 +139,14 @@ const ChatApp = () => {
         }
     };
 
+    const onUsersSearch = (search: string) => {
+        if (!socket) return;
+
+        socket.emit("searchUsers", search, (users: User[]) => {
+            setUsers(users);
+        });
+    };
+
     useEffect(() => {
         handleTyping(message.length > 0);
     }, [message]);
@@ -164,7 +172,14 @@ const ChatApp = () => {
 
     return (
         <div className="flex flex-col items-center mt-6">
-            <h1 className="text-4xl font-medium container">Chat App</h1>
+            <h1
+                className="text-4xl font-medium container cursor-pointer"
+                onClick={() => {
+                    setActiveContactItem(null);
+                }}
+            >
+                Chat App 2.0
+            </h1>
             <div className="w-full bg-[#586670] min-h-[93vh] mt-3 py-6">
                 <div className="flex container">
                     <div className="w-4/5 border-r flex flex-col">
@@ -196,13 +211,14 @@ const ChatApp = () => {
                                     />
                                 </>
                             ) : (
-                                <div className="h-full mx-auto text-gray-700 text-sm">
+                                <div className="h-[63.5vh] mx-auto text-gray-700 text-sm">
                                     Select contact to start chatting...
                                 </div>
                             )}
                         </div>
                     </div>
                     <Sidebar
+                        onUsersSearch={onUsersSearch}
                         bots={users.filter((u) => u.isBot)}
                         users={users.filter(
                             (u) => !u.isBot && u.id !== user?.id,

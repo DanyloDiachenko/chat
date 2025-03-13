@@ -101,6 +101,22 @@ io.on("connection", (socket: Socket) => {
     });
 
     socket.on(
+        "searchUsers",
+        (search: string, callback: (results: User[]) => void) => {
+            const searchLower = search.toLowerCase();
+
+            const filteredUsers = users.filter((user) =>
+                user.name.toLowerCase().includes(searchLower),
+            );
+            const filteredBots = bots.filter((bot) =>
+                bot.name.toLowerCase().includes(searchLower),
+            );
+
+            callback([...filteredUsers, ...filteredBots]);
+        },
+    );
+
+    socket.on(
         "sendMessage",
         ({ recipient, text }: { recipient: string; text: string }) => {
             if (!text.trim()) return;
@@ -211,28 +227,6 @@ const handleBotResponse = (botId: string, message: Message) => {
 
             scheduleSpamMessage(recipient);
             break;
-        /* case "bot-spam":
-            io.to(recipient).emit("typing", { userId: botId, typing: true });
-
-            setTimeout(() => {
-                const randomMessage = [
-                    "Hello!",
-                    "How are you?",
-                    "I'm a bot!",
-                    "Just checking in.",
-                    "Stay safe!",
-                ][Math.floor(Math.random() * 5)];
-
-                sendBotMessage(botId, recipient, randomMessage);
-
-                io.to(recipient).emit("typing", {
-                    userId: botId,
-                    typing: true,
-                });
-
-                scheduleSpamMessage(recipient);
-            }, Math.floor(Math.random() * 2000) + 1000);
-            break; */
     }
 };
 

@@ -9,8 +9,8 @@ export const Tabs = ({ activeTab, setActiveTab }: TabsProps) => {
             <button
                 className={`text-center pt-4 pb-1 ${
                     activeTab === "bots"
-                        ? "text-gray-600"
-                        : "text-gray-400 border-l border-b border-gray-300 bg-gray-100"
+                        ? "text-gray-600 hover:bg-white"
+                        : "text-gray-400 border-r border-b border-gray-300 bg-gray-100 hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("bots")}
             >
@@ -19,8 +19,8 @@ export const Tabs = ({ activeTab, setActiveTab }: TabsProps) => {
             <button
                 className={`text-center pt-4 pb-1 ${
                     activeTab === "users"
-                        ? "text-gray-600"
-                        : "text-gray-400 border-l border-b border-gray-300 bg-gray-100"
+                        ? "text-gray-600 hover:bg-white"
+                        : "text-gray-400 border-l border-b border-gray-300 bg-gray-100 hover:bg-gray-50"
                 }`}
                 onClick={() => setActiveTab("users")}
             >
