@@ -124,13 +124,16 @@ class ChatServer {
             this.io.emit("updateUsers", [...this.users, ...this.bots]);
 
             socket.on("requestMessageHistory", (recipientId: string) => {
-                const messageHistory = this.messages.filter(
-                    (msg) =>
-                        (msg.sender === user.id &&
-                            msg.recipient === recipientId) ||
-                        (msg.sender === recipientId &&
-                            msg.recipient === user.id),
-                );
+                const messageHistory = this.messages
+                    .filter(
+                        (msg) =>
+                            (msg.sender === user.id &&
+                                msg.recipient === recipientId) ||
+                            (msg.sender === recipientId &&
+                                msg.recipient === user.id),
+                    )
+                    .map((msg) => this.transformMessage(msg));
+
                 socket.emit("messageHistory", messageHistory);
             });
 

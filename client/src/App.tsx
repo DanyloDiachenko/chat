@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { io, Socket } from "socket.io-client";
-import { Message } from "./interfaces/message.interface";
 import { ConversationHeader } from "./components/ConversationHeader";
 import { MessageList } from "./components/MessageList";
 import { ChatInput } from "./components/ChatInput";
 import { Sidebar } from "./components/Sidebar";
 import { User } from "./interfaces/user.interface";
+import { Message } from "./interfaces/message.interface";
+import { ChatService } from "./services/chat.service";
 
 const ChatApp = () => {
-    const [socket, setSocket] = useState<Socket | null>(null);
     const [activeContactItem, setActiveContactItem] = useState<User | null>(
         null,
     );
@@ -19,150 +18,21 @@ const ChatApp = () => {
     const [message, setMessage] = useState("");
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const chatService = useRef<ChatService | null>(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-
-        if (!storedUser) {
-            const id = Date.now().toString();
-            const randomUsername = Math.random().toString(36).substring(2, 15);
-            const generateRandomDescription = () => {
-                const randomString =
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15) +
-                    Math.random().toString(36).substring(2, 15);
-
-                let result = "";
-                let count = 0;
-
-                for (let i = 0; i < randomString.length; i++) {
-                    result += randomString[i];
-                    count++;
-
-                    if (count >= 4 && (count % 5 === 0 || count % 4 === 0)) {
-                        result += " ";
-                        count = 0;
-                    }
-                }
-
-                return result;
-            };
-
-            const randomDescription = generateRandomDescription();
-
-            const newUser = {
-                id,
-                name: randomUsername,
-                description: randomDescription,
-                avatar: `https://i.pravatar.cc/150?img=${Math.floor(
-                    Math.random() * 70,
-                )}`,
-                online: true,
-                isBot: false,
-            };
-            localStorage.setItem("user", JSON.stringify(newUser));
-            setUser(newUser);
-        } else {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const newSocket = io("http://localhost:3005", {
-            query: {
-                id: user.id,
-                name: user.name,
-                avatar: user.avatar,
-                description: user.description,
-            },
-        });
-        setSocket(newSocket);
-
-        newSocket.on("updateUsers", (users: User[]) => {
-            console.log("Updated users list:", users);
-            setUsers(users);
-        });
-
-        newSocket.on("receiveMessage", (message: Message) => {
-            console.log("New message received:", message);
-            setMessages((prevMessages) => [...prevMessages, message]);
-        });
-
-        newSocket.on(
-            "typing",
-            ({ userId, typing }: { userId: string; typing: boolean }) => {
-                console.log(`${userId} is typing: ${typing}`);
-                setIsTyping((prevState) => ({
-                    ...prevState,
-                    [userId]: typing,
-                }));
-            },
+        chatService.current = new ChatService(
+            setUsers,
+            setMessages,
+            setIsTyping,
+            setUser,
         );
+        chatService.current.connectSocket();
 
         return () => {
-            newSocket.disconnect();
+            chatService.current?.disconnect();
         };
-    }, [user]);
-
-    const handleSendMessage = (text: string) => {
-        if (!socket || !activeContactItem || !user) return;
-
-        const newMessage = {
-            sender: user.id,
-            recipient: activeContactItem.id,
-            text,
-        };
-        console.log("Sending message:", newMessage);
-        socket.emit("sendMessage", newMessage);
-    };
-
-    const onContactItemClick = (contactItem: User) => {
-        setActiveContactItem(contactItem);
-        if (socket) {
-            socket.emit("requestMessageHistory", contactItem.id);
-            socket.emit("setActiveChat", contactItem.id);
-        }
-    };
-
-    const handleTyping = (isTyping: boolean) => {
-        if (socket) {
-            socket.emit("userTyping", isTyping);
-        }
-    };
-
-    const onUsersSearch = (search: string) => {
-        if (!socket) return;
-
-        socket.emit("searchUsers", search, (users: User[]) => {
-            setUsers(users);
-        });
-    };
-
-    useEffect(() => {
-        handleTyping(message.length > 0);
-    }, [message]);
-
-    useEffect(() => {
-        if (!socket) return;
-
-        socket.on("messageHistory", (history: Message[]) => {
-            console.log("Message history received:", history);
-            setMessages(history);
-        });
-
-        return () => {
-            socket.off("messageHistory");
-        };
-    }, [socket]);
+    }, []);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -170,13 +40,34 @@ const ChatApp = () => {
         }
     }, [messages]);
 
+    const onSendMessage = (text: string) => {
+        chatService.current?.sendMessage(text, activeContactItem);
+        setMessage("");
+    };
+
+    const onContactItemClick = (contactItem: User) => {
+        setActiveContactItem(contactItem);
+        chatService.current?.requestMessageHistory(contactItem.id);
+        chatService.current?.setActiveChat(contactItem.id);
+    };
+
+    const onTypingMessage = (isTyping: boolean) => {
+        chatService.current?.notifyTyping(isTyping);
+    };
+
+    const onUsersSearch = (search: string) => {
+        chatService.current?.searchUsers(search);
+    };
+
+    useEffect(() => {
+        onTypingMessage(message.length > 0);
+    }, [message]);
+
     return (
         <div className="flex flex-col items-center mt-6">
             <h1
                 className="text-4xl font-medium container cursor-pointer"
-                onClick={() => {
-                    setActiveContactItem(null);
-                }}
+                onClick={() => setActiveContactItem(null)}
             >
                 Chat App 2.0
             </h1>
@@ -203,7 +94,7 @@ const ChatApp = () => {
                                     <ChatInput
                                         message={message}
                                         setMessage={setMessage}
-                                        onSend={handleSendMessage}
+                                        onSend={onSendMessage}
                                         isTyping={
                                             isTyping[activeContactItem.id]
                                         }
