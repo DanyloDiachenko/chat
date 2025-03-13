@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { User } from "../interfaces/user.interface";
 import { Message } from "../interfaces/message.interface";
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 export class ChatService {
     private readonly IMAGES_URL = "https://i.pravatar.cc/150?img=";
