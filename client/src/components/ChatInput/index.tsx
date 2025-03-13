@@ -18,6 +18,7 @@ export const ChatInput = ({
 }: ChatInputProps) => {
     const handleSend = (e: FormEvent) => {
         e.preventDefault();
+
         if (message.trim()) {
             onSend(message);
             setMessage("");
@@ -38,8 +39,9 @@ export const ChatInput = ({
                     onChange={(e) => setMessage(e.target.value)}
                 />
                 <button
+                    disabled={!message.trim()}
                     type="submit"
-                    className="max-w-[25%] w-full bg-[#428bca] text-white py-3 rounded-md text-opacity-80 hover:bg-[#428bca]/80"
+                    className="max-w-[25%] w-full bg-[#428bca] text-white py-3 rounded-md text-opacity-80 hover:bg-[#428bca]/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Send message
                 </button>
