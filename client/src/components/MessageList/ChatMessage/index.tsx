@@ -5,6 +5,13 @@ interface MessageProps extends Message {
     me: User;
 }
 
+const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString("ua-UA", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
+
 export const ChatMessage = ({ sender, text, time, me }: MessageProps) => {
     const isUser = sender === me.id;
 
@@ -16,7 +23,7 @@ export const ChatMessage = ({ sender, text, time, me }: MessageProps) => {
                 }`}
             >
                 <span className="text-gray-700">{sender}</span>
-                <span className="text-gray-400">{time}</span>
+                <span className="text-gray-400">{formatTime(time)}</span>
             </div>
             <div className="px-4 py-2 bg-white shadow-lg text-gray-700 rounded-b-md relative">
                 <p>{text}</p>
